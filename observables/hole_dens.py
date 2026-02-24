@@ -221,7 +221,7 @@ def eval_plane(rdm0, uvec, disp, orig, bound1, bound2, roll=0.0, mol=None, tdir=
                 util_print.print_warning\
                     (f'The 1RDM loaded at the identical time point {tt[i]:13.8f} yields ' +
                      'eigenvalues different by more than 1E-6 as the other identical \n' +
-                     'time point. Ideally you don\'t want to have such inconcsistency ' +
+                     'time point. Ideally you don\'t want to have such inconsistency ' +
                      'in your data. Proceed at your own risk.')
             else:
                 print('   Data at this identical time point is consistent with the previous ' + \
@@ -398,7 +398,7 @@ def eval_volume(rdm0, nc, mol=None, tdir=None, orb=None, nCore=None, nCAS=None,
                 util_print.print_warning\
                     (f'The 1RDM loaded at the identical time point {tt[i]:13.8f} yields ' +
                      'eigenvalues different by more than 1E-6 as the other identical \n' +
-                     'time point. Ideally you don\'t want to have such inconcsistency ' +
+                     'time point. Ideally you don\'t want to have such inconsistency ' +
                      'in your data. Proceed at your own risk.')
             else:
                 print('   Data at this identical time point is consistent with the previous ' + \

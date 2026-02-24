@@ -14,6 +14,8 @@ def average(rdm_ref, imtype='ignore', mol=None, tdir=None, orb_a=None, nCore=Non
     '''
     Input parameters
     ----------------
+    rdm_ref:
+      The active-orbital block of the reference RDM.
     orb_a:
       Active orbital.
     nelCAS:
