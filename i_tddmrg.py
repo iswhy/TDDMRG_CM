@@ -29,7 +29,7 @@ Derived from:
      ft_tddmrg.py
 """
 
-from ipsh import ipsh
+#from ipsh import ipsh
 
 import os, time, glob
 from humanfriendly import format_timespan

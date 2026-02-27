@@ -1,7 +1,11 @@
 import numpy as np
 from functools import reduce
 from pyscf import gto, scf, dft, ao2mo, symm, mcscf
-from pyscf.dmrgscf import DMRGCI
+try:
+    from pyscf.dmrgscf import DMRGCI
+    dmrg_orb = True
+except ImportError:
+    dmrg_orb = False
 from TDDMRG_CM.utils.util_print import print_matrix
 from util_orbs import sort_orbs
 
@@ -173,9 +177,12 @@ def get_casscf_orbs(mol, nCAS, nelCAS, init_mo, frozen=None, ss=None, ss_shift=N
 
     #==== External FCI solver ====#
     if fcisolver == 'DMRG':
+        if not dmrg_orb:
+            raise ValueError('get_casscf_orbs: PySCF with the DMRGSCF extension ' +
+                             'enabled is required when fcisolver = DMRG.')
         if maxM is None:
-            raise ValueError('get_casscf_orbs: maxM is needed when fcisolver = ' + \
-                             '\'DMRG\'.')
+            raise ValueError('get_casscf_orbs: maxM is needed when fcisolver = ' + 
+                             'DMRG.')
         mc.fcisolver = DMRGCI(mf.mol, maxM=maxM, tol=sweep_tol, num_thrds=dmrg_nthreads,
                               memory = 7)
         mc.internal_rotation = True
