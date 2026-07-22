@@ -147,8 +147,10 @@ def get_IBOC(mol=None, oiao=None, ibo=None, mo_ref=None, loc='IBO', by_symm=Fals
     iboc = Q_proj @ oiao_
     norms = np.linalg.norm(iboc, axis=0)
     iboc = iboc[:, norms > proj_thr]
+    # ^^This filtering may not necessary. Linear dependencies will be removed during the svd step below anyway.
     iboc = iboc / norms[norms > proj_thr]
 
+    print('No. of nonzero vectors after projection = ', iboc.shape[1])
 
     #OLD#==== Orthogonalize IBOC via SVD ====#
     #OLDif by_symm:
@@ -166,12 +168,14 @@ def get_IBOC(mol=None, oiao=None, ibo=None, mo_ref=None, loc='IBO', by_symm=Fals
     #OLD    U, sv, Vt = np.linalg.svd(iboc, full_matrices=False)
     #OLD    n_ortho = len(sv[sv > ortho_thr])
     #OLD    iboc = U[:,0:n_ortho]
-
+    
     
     #==== Orthogonalize IBOC via SVD ====#
     U, sv, Vt = np.linalg.svd(iboc, full_matrices=False)
     n_ortho = len(sv[sv > ortho_thr])
     iboc = U[:,0:n_ortho]
+
+    print('No. of vectors after SVD (cIBOs) = ', iboc.shape[1])
     
     assert n_ortho == n_iboc, f'The number of retained IBOCs ({n_ortho}) must be ' + \
         'the same as the difference between the number of AOs and the number of ' + \
