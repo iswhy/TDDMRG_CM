@@ -23,7 +23,6 @@
 #OLD_CPX     except ImportError:
 #OLD_CPX         hasMPI = False
 
-from ipsh import ipsh
 import numpy as np
 import subprocess, shutil, os
 from TDDMRG_CM.utils.util_complex_type import get_complex_type

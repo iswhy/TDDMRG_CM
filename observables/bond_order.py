@@ -12,7 +12,8 @@ def calc(mol, pdm, mo, ovl=None):
     bo_low = np.zeros((mol.natm,mol.natm), dtype=dtype)
     for i in range(0, mol.natm):
         for j in range(i+1, mol.natm):
-            bo_mul[i,j], bo_low[i,j] = calc_pair(mol, pdm, mo, ((i,j),), ovl)
+            a, b = calc_pair(mol, pdm, mo, ((i,j),), ovl)  # a, b are length-1 vectors because ((i,j),) is length-1 tuple.
+            bo_mul[i,j], bo_low[i,j] = (a[0], b[0])
             bo_mul[j,i], bo_low[j,i] = bo_mul[i,j], bo_low[i,j]
 
     return bo_mul, bo_low
@@ -25,6 +26,8 @@ def calc_pair(mol, pdm, mo, atom_pairs, ovl=None):
     mol = Mole object.
     pdm = The complete (core+active) one-particle-reduced density matrix in MO rep.
     mo = The MOs in AO rep.
+    atom_pairs = A sequence of 2-element sequence, e.g. ((0,2), (1,0), (3,1)), which contains
+                 the indices of atom pairs between which the bond order is calculated.
     ovl = The overlap matrix associated with the AO basis defined in mol.
     '''    
 

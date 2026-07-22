@@ -1,4 +1,5 @@
-import orbs_generate.defvals as defvals
+#import orbs_generate.defvals as defvals
+import defvals
 
 
 def get_inputs(inp_file):
