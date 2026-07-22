@@ -116,7 +116,7 @@ def get_IBOC(mol=None, oiao=None, ibo=None, mo_ref=None, loc='IBO', by_symm=Fals
 
     if mol is None:
         mol = util_atoms.mole(logbook)
-        
+
     assert loc == 'IBO' or loc == 'PM'
     ovl = mol.intor('int1e_ovlp')
     if (oiao is None or ibo is None) and (mo_ref is None):
@@ -149,36 +149,43 @@ def get_IBOC(mol=None, oiao=None, ibo=None, mo_ref=None, loc='IBO', by_symm=Fals
     iboc = iboc[:, norms > proj_thr]
     iboc = iboc / norms[norms > proj_thr]
 
+
+    #OLD#==== Orthogonalize IBOC via SVD ====#
+    #OLDif by_symm:
+    #OLD    o = np.array([])
+    #OLD    #iboc_s = np.array( symm.label_orb_symm(mol, mol.irrep_name, mol.symm_orb, x@iboc) )
+    #OLD    iboc_s = np.array(util_qm.get_orb_sym(mol, x@iboc))
+    #OLD    n_ortho = 0
+    #OLD    for s in set(iboc_s):
+    #OLD        U, sv, Vt = np.linalg.svd(iboc[:,iboc_s == s], full_matrices=False)
+    #OLD        nsym = len(sv[sv > ortho_thr])
+    #OLD        o = U[:,0:nsym] if o.size == 0 else np.hstack((o, U[:,0:nsym]))
+    #OLD        n_ortho += nsym
+    #OLD    iboc = o[:,0:n_ortho]
+    #OLDelse:
+    #OLD    U, sv, Vt = np.linalg.svd(iboc, full_matrices=False)
+    #OLD    n_ortho = len(sv[sv > ortho_thr])
+    #OLD    iboc = U[:,0:n_ortho]
+
     
     #==== Orthogonalize IBOC via SVD ====#
-    if by_symm:
-        # As it turns out, orthogonalization through SVD does not necessarily conserve
-        # symmetry. This is especially true in linear molecules with point group set to
-        # D2h or C2v where the absence of symmetry is reflected in the lobes of pi
-        # orbitals not oriented along any Cartesian axes. This block performs SVD for
-        # each symmetry block of iboc obtained above, hence preserving the symmetry
-        # of these iboc's.
-        o = np.array([])
-        #iboc_s = np.array( symm.label_orb_symm(mol, mol.irrep_name, mol.symm_orb, x@iboc) )
-        iboc_s = np.array(util_qm.get_orb_sym(mol, x@iboc))
-        n_ortho = 0
-        for s in set(iboc_s):
-            U, sv, Vt = np.linalg.svd(iboc[:,iboc_s == s], full_matrices=False)
-            nsym = len(sv[sv > ortho_thr])
-            o = U[:,0:nsym] if o.size == 0 else np.hstack((o, U[:,0:nsym]))
-            n_ortho += nsym
-        iboc = o[:,0:n_ortho]
-    else:
-        U, sv, Vt = np.linalg.svd(iboc, full_matrices=False)
-        n_ortho = len(sv[sv > ortho_thr])
-        iboc = U[:,0:n_ortho]
+    U, sv, Vt = np.linalg.svd(iboc, full_matrices=False)
+    n_ortho = len(sv[sv > ortho_thr])
+    iboc = U[:,0:n_ortho]
     
     assert n_ortho == n_iboc, f'The number of retained IBOCs ({n_ortho}) must be ' + \
         'the same as the difference between the number of AOs and the number of ' + \
         f'IBOs ({n_iboc}). Try changing ortho_thr.'    
         
     #==== Express orthogonalized IBOC in AO basis ====#
-    iboc = x @ iboc
+    if by_symm:
+        # As it turns out, orthogonalization through SVD above does not necessarily conserve
+        # symmetry. This is especially true in linear molecules with point group set to
+        # D2h or C2v where the absence of symmetry is reflected in the lobes of pi
+        # orbitals not oriented along any Cartesian axes.
+        iboc = symm.symmetrize_space(mol, x @ iboc)
+    else:
+        iboc = x @ iboc    
 
     #==== Localize IBOC ====#
     if loc == 'IBO':
